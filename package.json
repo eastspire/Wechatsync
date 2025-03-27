@@ -11,7 +11,7 @@
   "license": "ISC",
   "scripts": {
     "prepare": "husky install",
-    "build": "pnpm --filter web-extension build"
+    "build": "pnpm --filter @wechatsync/drivers build && pnpm --filter web-extension build && pnpm --filter markdown-editor build"
   },
   "config": {
     "commitizen": {
