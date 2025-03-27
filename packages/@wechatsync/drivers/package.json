@@ -18,5 +18,9 @@
     "juice": "^7.0.0",
     "remarkable": "^2.0.1",
     "turndown": "^6.0.0"
+  },
+  "devDependencies": {
+    "webpack-merge": "^6.0.1",
+    "events": "^3.3.0"
   }
 }

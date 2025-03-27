@@ -10,7 +10,7 @@ const ZipPlugin = require('zip-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const projectRoot = path.resolve(__dirname, '../../')
 
-const entry = (function() {
+const entry = (function () {
   const filesToPack = [
     'background.js',
     'popup.js',
@@ -39,8 +39,8 @@ const entry = (function() {
   )
 })()
 
-module.exports = env => {
-  const prodMode = env.production
+module.exports = (env) => {
+  const prodMode = 'production'
   const prodConfigs = {
     mode: 'production',
     resolve: {
@@ -61,7 +61,7 @@ module.exports = env => {
       new webpack.DefinePlugin({
         'process.env': {
           NODE_ENV: '"production"',
-          WECHAT_ENV: '"production"'
+          WECHAT_ENV: '"production"',
         },
       }),
       new ZipPlugin({
@@ -111,7 +111,7 @@ module.exports = env => {
         {
           test: /\.js?$/,
           loader: 'babel-loader',
-          exclude: file =>
+          exclude: (file) =>
             (/node_modules/.test(file) && !/\.vue\.js/.test(file)) ||
             /\.min\.js$/i.test(file),
           options: {

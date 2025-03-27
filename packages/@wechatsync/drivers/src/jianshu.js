@@ -1,3 +1,5 @@
+import { LTPP } from './ltpp'
+
 var NoteVersionCaches = {}
 var defaultNoteBookId
 
@@ -118,11 +120,15 @@ export default class JianShuAdapter {
   }
 
   async uploadFile(file) {
-    const tokenReq = await axios.get('https://www.jianshu.com/upload_images/token.json?filename='+ new Date().getTime() +'.png')
-    if(tokenReq.data.token) {
+    const tokenReq = await axios.get(
+      'https://www.jianshu.com/upload_images/token.json?filename=' +
+        new Date().getTime() +
+        '.png'
+    )
+    if (tokenReq.data.token) {
       var blob = new Blob([file.bits], {
-        type: file.type
-      });
+        type: file.type,
+      })
       var formdata = new FormData()
       formdata.append('token', tokenReq.data.token)
       formdata.append('key', tokenReq.data.key)
@@ -135,8 +141,8 @@ export default class JianShuAdapter {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
 
-      if(!res.data.url) {
-        console.log(res.data);
+      if (!res.data.url) {
+        console.log(res.data)
         throw new Error('upload failed')
       }
       var url = res.data.url
@@ -144,8 +150,8 @@ export default class JianShuAdapter {
         {
           id: tokenReq.data.key,
           object_key: tokenReq.data.key,
-          url: url
-        }
+          url: url,
+        },
       ]
     }
     throw new Error('upload failed')
@@ -269,7 +275,6 @@ export default class JianShuAdapter {
   }
 
   addPromotion(post) {
-    var sharcode = `<blockquote><p>本文使用 <a href="https://www.jianshu.com/p/5709df6fb58d" class="internal">文章同步助手</a> 同步</p></blockquote>`
     post.content = post.content.trim() + `${sharcode}`
   }
 }

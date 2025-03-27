@@ -3,21 +3,21 @@ const webpack = require('webpack')
 const Dotenv = require('dotenv-webpack')
 const projectRoot = path.resolve(__dirname, '../../')
 
-module.exports = env => {
-  const prodMode = env.production
+module.exports = (env) => {
+  const prodMode = 'production'
 
   return {
-    mode: "production",
-    entry: "./src/drivers/driver.js",
+    mode: 'production',
+    entry: './src/drivers/driver.js',
     output: {
       filename: 'driverCodePack.temp',
       path: path.resolve(__dirname, '../dist'),
       clean: true,
-      library: 'modules'
+      library: 'modules',
     },
     optimization: {
       minimize: false,
-      usedExports: false
+      usedExports: false,
     },
     plugins: [
       new Dotenv({
@@ -32,7 +32,7 @@ module.exports = env => {
           NODE_ENV: '"production"',
           WECHAT_ENV: '"production"',
         },
-      })
+      }),
     ],
   }
 }

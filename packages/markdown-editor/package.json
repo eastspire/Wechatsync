@@ -17,5 +17,9 @@
     "vue-spinner": "^1.0.4",
     "vuex": "^3.6.2"
   },
+  "devDependencies": {
+    "webpack-merge": "^6.0.1",
+    "events": "^3.3.0"
+  },
   "license": "ISC"
 }

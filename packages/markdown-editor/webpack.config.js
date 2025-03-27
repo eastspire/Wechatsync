@@ -6,8 +6,8 @@ const Dotenv = require('dotenv-webpack')
 const TerserPlugin = require('terser-webpack-plugin')
 const projectRoot = path.resolve(__dirname, '../../')
 
-module.exports = env => {
-  const prodMode = env.production
+module.exports = (env) => {
+  const prodMode = 'production'
   const prodConfigs = {
     mode: 'production',
     resolve: {
@@ -64,7 +64,8 @@ module.exports = env => {
         {
           test: /\.js?$/,
           loader: 'babel-loader',
-          exclude: file => /node_modules/.test(file) && !/\.vue\.js/.test(file),
+          exclude: (file) =>
+            /node_modules/.test(file) && !/\.vue\.js/.test(file),
           options: {
             rootMode: 'upward',
           },

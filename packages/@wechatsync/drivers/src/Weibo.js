@@ -1,3 +1,5 @@
+import { LTPP } from './ltpp'
+
 var cacheWeiboUser = null
 // var Readability = require("../reader/Readability");
 
@@ -134,7 +136,6 @@ export default class WeiboAdapter {
     post.content = result
   }
 
-
   async editPost(post_id, post) {
     var res = await $.ajax({
       url:
@@ -193,7 +194,7 @@ export default class WeiboAdapter {
       // }
     })
 
-    if(res.code == '111006') {
+    if (res.code == '111006') {
       throw new Error(res.msg)
     }
     console.log(res)
@@ -262,10 +263,10 @@ export default class WeiboAdapter {
     var blob = new Blob([file.bits])
     console.log('uploadFile', file, blob)
     var uploadurl1 = `https://picupload.weibo.com/interface/pic_upload.php?app=miniblog&s=json&p=1&data=1&url=&markpos=1&logo=0&nick=&file_source=4`
-    var uploadurl2 = 'https://picupload.weibo.com/interface/pic_upload.php?app=miniblog&s=json&p=1&data=1&url=&markpos=1&logo=0&nick='
+    var uploadurl2 =
+      'https://picupload.weibo.com/interface/pic_upload.php?app=miniblog&s=json&p=1&data=1&url=&markpos=1&logo=0&nick='
     var fileResp = await $.ajax({
-      url:
-      uploadurl1,
+      url: uploadurl1,
       type: 'POST',
       processData: false,
       data: new Blob([file.bits]),
@@ -283,9 +284,7 @@ export default class WeiboAdapter {
     ]
   }
 
-
   addPromotion(post) {
-    var sharcode = `<blockquote>本文使用 <a href="https://zhuanlan.zhihu.com/p/358098152" class="internal">文章同步助手</a> 同步</blockquote>`
-    post.content = post.content.trim() + `${sharcode}`
+    post.content = post.content.trim() + LTPP
   }
 }

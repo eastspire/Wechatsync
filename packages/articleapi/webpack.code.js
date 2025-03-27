@@ -3,8 +3,8 @@ const webpack = require('webpack')
 const Dotenv = require('dotenv-webpack')
 const projectRoot = path.resolve(__dirname, '../../')
 
-module.exports = env => {
-  const prodMode = env.production
+module.exports = (env) => {
+  const prodMode = 'production'
 
   return {
     mode: 'production',
@@ -15,7 +15,7 @@ module.exports = env => {
       path: path.resolve(__dirname, './dist'),
       clean: true,
       library: 'modules',
-      libraryTarget: 'umd'
+      libraryTarget: 'umd',
     },
     optimization: {
       minimize: false,

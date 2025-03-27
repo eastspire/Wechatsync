@@ -1,59 +1,61 @@
-var metaCache = null
+import { LTPP } from './ltpp'
 
+var metaCache = null
 
 const ImageRegexp = /^!\[([^\]]*)]\s*\(([^)"]+)( "([^)"]+)")?\)/
 const imageBlock = (remarkable) => {
-  remarkable.block.ruler.before('paragraph', 'image', (state, startLine, endLine, silent) => {
-    const pos = state.bMarks[startLine] + state.tShift[startLine]
-    const max = state.eMarks[startLine]
+  remarkable.block.ruler.before(
+    'paragraph',
+    'image',
+    (state, startLine, endLine, silent) => {
+      const pos = state.bMarks[startLine] + state.tShift[startLine]
+      const max = state.eMarks[startLine]
 
-    if (pos >= max) {
-      return false
+      if (pos >= max) {
+        return false
+      }
+      if (!state.src) {
+        return false
+      }
+      if (state.src[pos] !== '!') {
+        return false
+      }
+
+      var match = ImageRegexp.exec(state.src.slice(pos))
+      if (!match) {
+        return false
+      }
+
+      // in silent mode it shouldn't output any tokens or modify pending
+      if (!silent) {
+        state.tokens.push({
+          type: 'image_open',
+          src: match[2],
+          alt: match[1],
+          lines: [startLine, state.line],
+          level: state.level,
+        })
+
+        state.tokens.push({
+          type: 'image_close',
+          level: state.level,
+        })
+      }
+
+      state.line = startLine + 1
+
+      return true
     }
-    if (!state.src) {
-      return false
-    }
-    if (state.src[pos] !== '!') {
-      return false
-    }
-
-    var match = ImageRegexp.exec(state.src.slice(pos))
-    if (!match) {
-      return false
-    }
-
-    // in silent mode it shouldn't output any tokens or modify pending
-    if (!silent) {
-      state.tokens.push({
-        type: 'image_open',
-        src: match[2],
-        alt: match[1],
-        lines: [ startLine, state.line ],
-        level: state.level
-      })
-
-      state.tokens.push({
-        type: 'image_close',
-        level: state.level
-      })
-    }
-
-    state.line = startLine + 1
-
-    return true
-  })
+  )
 }
-
-
 
 function getFormData(obj) {
-    var map = {};
-    obj.find('input').each(function() {
-        map[$(this).attr("name")] = $(this).val();
-    });
-    return map
+  var map = {}
+  obj.find('input').each(function () {
+    map[$(this).attr('name')] = $(this).val()
+  })
+  return map
 }
-
 
 export default class DoubanAdapter {
   constructor(config) {
@@ -61,27 +63,32 @@ export default class DoubanAdapter {
     this.meta = metaCache
     this.name = 'douban'
 
-    modifyRequestHeaders('www.douban.com/', {
-    	Origin: 'https://www.douban.com',
-      Referer: 'https://www.douban.com'
-    }, [
-    	'*://www.douban.com/*',
-    ])
+    modifyRequestHeaders(
+      'www.douban.com/',
+      {
+        Origin: 'https://www.douban.com',
+        Referer: 'https://www.douban.com',
+      },
+      ['*://www.douban.com/*']
+    )
   }
 
   async getMetaData() {
     var res = await $.ajax({ url: 'https://www.douban.com/note/create' })
     var innerDoc = $(res)
     var doc = $('<div>').append(innerDoc.clone())
-    var configScript = innerDoc.filter(function(index, el){ return $(el).text().indexOf('_POST_PARAMS') > -1 });
-    if(configScript.length == 0) {
-        throw new Error('未登录')
+    var configScript = innerDoc.filter(function (index, el) {
+      return $(el).text().indexOf('_POST_PARAMS') > -1
+    })
+    if (configScript.length == 0) {
+      throw new Error('未登录')
     }
     var code = configScript.text()
     var wx = new Function(
-        'Do ={}; Do.add = function() {} '+ code +
+      'Do ={}; Do.add = function() {} ' +
+        code +
         '; return {_USER_AVATAR: _USER_AVATAR, _USER_NAME: _USER_NAME, _NOTE_ID: _NOTE_ID, _TAGS: _TAGS, _POST_PARAMS: _POST_PARAMS};'
-    )();
+    )()
     console.log(code, wx)
 
     var metadata = {
@@ -94,7 +101,7 @@ export default class DoubanAdapter {
       home: 'https://www.douban.com/note/create',
       icon: 'https://img3.doubanio.com/favicon.ico',
       form: getFormData(doc.find('#note-editor-form')),
-      _POST_PARAMS: wx._POST_PARAMS
+      _POST_PARAMS: wx._POST_PARAMS,
     }
     metaCache = metadata
     this.meta = metaCache
@@ -113,82 +120,86 @@ export default class DoubanAdapter {
     var turndownService = new turndown()
     turndownService.use(tools.turndownExt)
     var markdown = turndownService.turndown(post.post_content)
-    console
-      .log(markdown)
+    console.log(markdown)
 
     // 保证图片换行
-    markdown = markdown.split("\n").map(_ => {
-      const imageBlocks = _.split('![]');
-      return imageBlocks.length > 1 ? imageBlocks.join('\n![]') : _
-    }).join("\n");
+    markdown = markdown
+      .split('\n')
+      .map((_) => {
+        const imageBlocks = _.split('![]')
+        return imageBlocks.length > 1 ? imageBlocks.join('\n![]') : _
+      })
+      .join('\n')
 
-    const draftjsState = JSON.stringify(tools.markdownToDraft(markdown, {
-      remarkablePlugins: [imageBlock],
-      blockTypes: {
-        image_open: function(item, generateUniqueKey) {
-          console.log('image_open', 'blockTypes', item)
-          var key = generateUniqueKey()
-          var blockEntities = {}
-          // ?#
-          var sourcePair =  item.src.split("?#")
-          var rawSrc = sourcePair[0]
-          var sourceId = sourcePair[1]
-          if(sourcePair.length) {
-            item.src = rawSrc
-          }
-          var imageTemplate = {
-            id: sourceId,
-            src:  item.src,
-            thumb: item.src,
-            url: item.src,
-          }
-
-          blockEntities[key] = {
-            type: 'IMAGE',
-            mutability: 'IMMUTABLE',
-            data: imageTemplate,
-          }
-          return {
-            type: 'atomic',
-            blockEntities: blockEntities,
-            inlineStyleRanges: [],
-            // "data": {
-            //     "page": 0
-            // },
-            entityRanges: [
-              {
-                offset: 0,
-                length: 1,
-                key: key,
-              },
-            ],
-            text: ' ',
-          }
-        }
-      },
-      blockEntities: {
-        image: function (item) {
-          var sourcePair =  item.src.split("?#")
-          if(sourcePair.length) {
+    const draftjsState = JSON.stringify(
+      tools.markdownToDraft(markdown, {
+        remarkablePlugins: [imageBlock],
+        blockTypes: {
+          image_open: function (item, generateUniqueKey) {
+            console.log('image_open', 'blockTypes', item)
+            var key = generateUniqueKey()
+            var blockEntities = {}
+            // ?#
+            var sourcePair = item.src.split('?#')
             var rawSrc = sourcePair[0]
             var sourceId = sourcePair[1]
-            item.id = sourceId
-            item.src = rawSrc
-          }
-          console.log('image_open', 'blockEntities', item)
-          return {
-            type: 'IMAGE',
-            mutability: 'IMMUTABLE',
-            data: item
-          }
-        }
-      }
-    }));
+            if (sourcePair.length) {
+              item.src = rawSrc
+            }
+            var imageTemplate = {
+              id: sourceId,
+              src: item.src,
+              thumb: item.src,
+              url: item.src,
+            }
+
+            blockEntities[key] = {
+              type: 'IMAGE',
+              mutability: 'IMMUTABLE',
+              data: imageTemplate,
+            }
+            return {
+              type: 'atomic',
+              blockEntities: blockEntities,
+              inlineStyleRanges: [],
+              // "data": {
+              //     "page": 0
+              // },
+              entityRanges: [
+                {
+                  offset: 0,
+                  length: 1,
+                  key: key,
+                },
+              ],
+              text: ' ',
+            }
+          },
+        },
+        blockEntities: {
+          image: function (item) {
+            var sourcePair = item.src.split('?#')
+            if (sourcePair.length) {
+              var rawSrc = sourcePair[0]
+              var sourceId = sourcePair[1]
+              item.id = sourceId
+              item.src = rawSrc
+            }
+            console.log('image_open', 'blockEntities', item)
+            return {
+              type: 'IMAGE',
+              mutability: 'IMMUTABLE',
+              data: item,
+            }
+          },
+        },
+      })
+    )
     console.log(draftjsState)
 
-    var state = this.config.state;
-    var requestUrl = 'https://www.douban.com/j/note/autosave';
-    var draftLink = 'https://www.douban.com/note/create';
+    var state = this.config.state
+    var requestUrl = 'https://www.douban.com/j/note/autosave'
+    var draftLink = 'https://www.douban.com/note/create'
     var requestBody = {
       is_rich: 1,
       note_id: this.meta.form.note_id,
@@ -201,7 +212,7 @@ export default class DoubanAdapter {
       accept_donation: null,
       donation_notice: null,
       is_original: null,
-      ck: this.meta.form.ck
+      ck: this.meta.form.ck,
     }
 
     // https://music.douban.com/subject/24856133/new_review
@@ -218,24 +229,24 @@ export default class DoubanAdapter {
     // review[donate]:
     // review[original]:
     // ck: O4jk
-    if(state && state.is_review) {
-      if(state.subject == 'music') {
-        draftLink = state.url;
+    if (state && state.is_review) {
+      if (state.subject == 'music') {
+        draftLink = state.url
         requestUrl = 'https://music.douban.com/j/review/create'
         requestBody = {
           is_rich: 1,
           topic_id: '',
           review: {
             subject_id: state.id,
-            title:  post.post_title,
+            title: post.post_title,
             introduction: '',
             text: draftjsState,
             rating: '',
             spoiler: '',
             donate: '',
-            original: ''
+            original: '',
           },
-          ck: this.meta.form.ck
+          ck: this.meta.form.ck,
         }
       }
     }
@@ -247,7 +258,7 @@ export default class DoubanAdapter {
       data: requestBody,
     })
 
-    if(res.url) {
+    if (res.url) {
       draftLink = `https://www.douban.com/note/${requestBody.note_id}/`
     }
 
@@ -286,23 +297,21 @@ export default class DoubanAdapter {
   }
 
   addPromotion(post) {
-    var sharcode = `<blockquote><p>本文使用 <a href="https://zhuanlan.zhihu.com/p/358098152" class="internal">文章同步助手</a> 同步</p></blockquote>`
-    post.content = post.content.trim() + `${sharcode}`
+    post.content = post.content.trim() + LTPP
   }
 
   async uploadFile(file) {
-
     // https://music.douban.com/j/review/upload_image
-    var requestUrl = 'https://www.douban.com/j/note/add_photo';
-    var state = this.config.state;
+    var requestUrl = 'https://www.douban.com/j/note/add_photo'
+    var state = this.config.state
     var formdata = new FormData()
     var blob = new Blob([file.bits], {
-      type: file.type
-    });
+      type: file.type,
+    })
 
-    if(state && state.is_review) {
-      if(state.subject == 'music') {
-        requestUrl =  'https://music.douban.com/j/review/upload_image';
+    if (state && state.is_review) {
+      if (state.subject == 'music') {
+        requestUrl = 'https://music.douban.com/j/review/upload_image'
         formdata.append('review_id', '')
         formdata.append('picfile', blob)
       }
@@ -312,7 +321,10 @@ export default class DoubanAdapter {
     }
 
     formdata.append('ck', this.meta.form.ck)
-    formdata.append('upload_auth_token', this.meta._POST_PARAMS.siteCookie.value)
+    formdata.append(
+      'upload_auth_token',
+      this.meta._POST_PARAMS.siteCookie.value
+    )
 
     var res = await axios({
       url: requestUrl,
@@ -322,17 +334,17 @@ export default class DoubanAdapter {
     })
 
     var url = res.data.photo.url
-    if(!res.data.photo) {
-        console.log(res.data);
-        throw new Error('upload failed')
+    if (!res.data.photo) {
+      console.log(res.data)
+      throw new Error('upload failed')
     }
     //  return url;
     return [
       {
         id: res.data.photo.id,
         object_key: res.data.photo.id,
-        url: url + "?#" + res.data.photo.id,
-        raw: res.data
+        url: url + '?#' + res.data.photo.id,
+        raw: res.data,
       },
     ]
   }
