@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       events:
-        specifier: ^3.3.0
+        specifier: 3.3.0
         version: 3.3.0
     devDependencies:
       '@babel/core':
@@ -112,7 +112,7 @@ importers:
         specifier: ^3.11.2
         version: 3.11.3(webpack-cli@4.10.0)(webpack@5.98.0)
       webpack-merge:
-        specifier: ^6.0.1
+        specifier: 6.0.1
         version: 6.0.1
       webpack-node-externals:
         specifier: ^2.5.2

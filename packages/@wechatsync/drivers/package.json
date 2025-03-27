@@ -20,8 +20,9 @@
     "turndown": "^6.0.0"
   },
   "devDependencies": {
-    "webpack-merge": "^6.0.1",
-    "events": "^3.3.0",
-    "babel-loader": "workspace:*"
+    "webpack-merge": "6.0.1",
+    "events": "3.3.0",
+    "html-webpack-plugin": "^5.6.3",
+    "babel-loader": "10.0.0"
   }
 }

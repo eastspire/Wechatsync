@@ -1,4 +1,4 @@
-import buildInDrivers from "@wechatsync/drivers";
+import buildInDrivers from '../../../@wechatsync/drivers'
 
 const {
   JianShuAdapter,
@@ -28,21 +28,19 @@ const {
 } = buildInDrivers
 
 var _cacheState = {}
-const _customDrivers = {};
+const _customDrivers = {}
 
 export function addCustomDriver(name, driverClass) {
   _customDrivers[name] = {
     name: name,
-    handler: driverClass
+    handler: driverClass,
   }
   console.log('addCustomDriver', _customDrivers)
 }
 
-
 export function getDriver(account) {
-
   // 保证在内置的前面
-  if(_customDrivers[account.type]) {
+  if (_customDrivers[account.type]) {
     const driverInCustom = _customDrivers[account.type]
     return new driverInCustom['handler'](account)
   }
@@ -126,7 +124,7 @@ export function getDriver(account) {
     return new BaiJiaHaoAdapter(account)
   }
 
-  if(account.type == 'douban') {
+  if (account.type == 'douban') {
     console.log(account.type)
     return new DoubanAdapter({
       globalState: _cacheState,
@@ -134,7 +132,7 @@ export function getDriver(account) {
     })
   }
 
-  if(account.type == 'discuz') {
+  if (account.type == 'discuz') {
     console.log('discuz', account)
     return new DiscuzAdapter(account.config)
   }
@@ -166,18 +164,18 @@ export function getDriver(account) {
   throw Error('not supprt account type')
 }
 
-const chunk = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
-  arr.slice(i * size, i * size + size)
-);
+const chunk = (arr, size) =>
+  Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+    arr.slice(i * size, i * size + size)
+  )
 
 let _cacheUsers = null
 let _lastFetch = null
 
 export async function getPublicAccounts() {
-
   // 限制20s 保证不会太频繁请求平台
-  if(_lastFetch != null) {
-    const isTooQuickly = (Date.now() - _lastFetch) < 20 * 1000
+  if (_lastFetch != null) {
+    const isTooQuickly = Date.now() - _lastFetch < 20 * 1000
     if (isTooQuickly) {
       console.log('too quickly return by cache')
       return _cacheUsers
@@ -210,42 +208,44 @@ export async function getPublicAccounts() {
     new IPFSAdapter(),
   ]
 
-  var customDiscuzEndpoints = ['https://www.51hanghai.com'];
-  customDiscuzEndpoints.forEach(_ => {
-    drivers.push(new DiscuzAdapter({
-      url: _,
-   }));
+  var customDiscuzEndpoints = ['https://www.51hanghai.com']
+  customDiscuzEndpoints.forEach((_) => {
+    drivers.push(
+      new DiscuzAdapter({
+        url: _,
+      })
+    )
   })
 
-  Object.keys(_customDrivers).forEach(type => {
-    const _customDriver = _customDrivers[type];
+  Object.keys(_customDrivers).forEach((type) => {
+    const _customDriver = _customDrivers[type]
     try {
-      drivers.push(new _customDriver['handler']());
+      drivers.push(new _customDriver['handler']())
     } catch (e) {
       console.log('initlaze custom driver error', e)
     }
-  });
+  })
 
   var users = []
 
-  const stepItems = chunk(drivers, 20);
+  const stepItems = chunk(drivers, 20)
   const startTime = Date.now()
   for (let index = 0; index < stepItems.length; index++) {
     try {
-      const stepItem = stepItems[index];
+      const stepItem = stepItems[index]
       const results = await Promise.all(
         stepItem.map((driver) => {
           return new Promise((resolve, reject) => {
-            driver.getMetaData().then(resolve, function() {
+            driver.getMetaData().then(resolve, function () {
               resolve(null)
             })
           })
         })
-      );
-      const successAccounts = results.filter(_ => _)
+      )
+      const successAccounts = results.filter((_) => _)
       users = users.concat(successAccounts)
     } catch (e) {
-      console.log("chunkPromise", e);
+      console.log('chunkPromise', e)
     }
   }
   // for (let index = 0; index < drivers.length; index++) {
@@ -275,11 +275,8 @@ function getCookie(name, cookieStr) {
 }
 
 function urlHandler(details) {
-  if (
-    details.url.indexOf('api.bilibili.com') >
-    -1
-  ) {
-    var cookieHeader = details.requestHeaders.filter(h => {
+  if (details.url.indexOf('api.bilibili.com') > -1) {
+    var cookieHeader = details.requestHeaders.filter((h) => {
       return h.name.toLowerCase() == 'cookie'
     })
 
@@ -287,7 +284,7 @@ function urlHandler(details) {
       var cookieStr = cookieHeader[0].value
       var bili_jct = getCookie('bili_jct', cookieStr)
       if (bili_jct) {
-        _cacheState['bilibili'] = _cacheState['bilibili'] || {};
+        _cacheState['bilibili'] = _cacheState['bilibili'] || {}
         Object.assign(_cacheState['bilibili'], {
           csrf: bili_jct,
         })
@@ -298,19 +295,17 @@ function urlHandler(details) {
   }
   // https://music.douban.com/subject/24856133/new_review
   if (
-    details.url.indexOf('music.douban.com') >
-    -1
-    &&
-    details.url.indexOf('/new_review') >
-    -1
+    details.url.indexOf('music.douban.com') > -1 &&
+    details.url.indexOf('/new_review') > -1
   ) {
-    _cacheState['douban'] = _cacheState['douban'] || {};
+    _cacheState['douban'] = _cacheState['douban'] || {}
     Object.assign(_cacheState['douban'], {
       is_review: true,
       subject: 'music',
       url: details.url,
-      id: details.url.replace('https://music.douban.com/subject/', '')
-      .replace('/new_review', '')
+      id: details.url
+        .replace('https://music.douban.com/subject/', '')
+        .replace('/new_review', ''),
     })
   }
 }

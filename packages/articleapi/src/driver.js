@@ -1,4 +1,4 @@
-import buildInDrivers from '@wechatsync/drivers'
+import buildInDrivers from '../../@wechatsync/drivers'
 
 const {
   JianShuAdapter,
@@ -191,7 +191,7 @@ export async function getPublicAccounts() {
   ]
 
   var customDiscuzEndpoints = ['https://www.51hanghai.com']
-  customDiscuzEndpoints.forEach(_ => {
+  customDiscuzEndpoints.forEach((_) => {
     drivers.push(
       new DiscuzAdapter({
         url: _,
@@ -199,7 +199,7 @@ export async function getPublicAccounts() {
     )
   })
 
-  Object.keys(_customDrivers).forEach(type => {
+  Object.keys(_customDrivers).forEach((type) => {
     const _customDriver = _customDrivers[type]
     try {
       drivers.push(new _customDriver['handler']())
@@ -216,15 +216,15 @@ export async function getPublicAccounts() {
     try {
       const stepItem = stepItems[index]
       const results = await Promise.all(
-        stepItem.map(driver => {
+        stepItem.map((driver) => {
           return new Promise((resolve, reject) => {
-            driver.getMetaData().then(resolve, function() {
+            driver.getMetaData().then(resolve, function () {
               resolve(null)
             })
           })
         })
       )
-      const successAccounts = results.filter(_ => _)
+      const successAccounts = results.filter((_) => _)
       users = users.concat(successAccounts)
     } catch (e) {
       console.log('chunkPromise', e)
@@ -258,7 +258,7 @@ function getCookie(name, cookieStr) {
 
 function urlHandler(details) {
   if (details.url.indexOf('api.bilibili.com') > -1) {
-    var cookieHeader = details.requestHeaders.filter(h => {
+    var cookieHeader = details.requestHeaders.filter((h) => {
       return h.name.toLowerCase() == 'cookie'
     })
 

@@ -1,16 +1,16 @@
 import Sval from 'sval'
-import svalScopes from '@wechatsync/drivers/scopes'
+import svalScopes from '../../@wechatsync/drivers/scopes'
 import moment from 'moment'
 
 export function getSettings() {
   return new Promise((resolve, reject) => {
     try {
-      getCache('settings', value => {
+      getCache('settings', (value) => {
         if (value.settings) {
           try {
             var settings = JSON.parse(value.settings)
             resolve(settings)
-          } catch(e) {
+          } catch (e) {
             reject(e)
           }
         } else {
@@ -56,7 +56,7 @@ function getRuntimeScopes() {
 export function initDevRuntimeEnvironment() {
   const scopes = getRuntimeScopes()
 
-  Object.keys(scopes).forEach(key => {
+  Object.keys(scopes).forEach((key) => {
     if (!window.hasOwnProperty(key)) {
       window[key] = scopes[key]
     }
@@ -93,7 +93,7 @@ export function initializeDriver(conf = {}) {
       const driver = getDriverProvider(code)
       resolve(driver)
     }
-    chrome.storage.local.get(['driver'], function(result) {
+    chrome.storage.local.get(['driver'], function (result) {
       try {
         if (conf.beforeCreate) {
           conf.beforeCreate(result)
@@ -109,13 +109,13 @@ export function initializeDriver(conf = {}) {
 function setCache(name, value) {
   var d = {}
   d[name] = value
-  chrome.storage.local.set(d, function() {
+  chrome.storage.local.set(d, function () {
     console.log('cache set')
   })
 }
 
 function getCache(name, cb) {
-  chrome.storage.local.get(name, function(result) {
+  chrome.storage.local.get(name, function (result) {
     cb(result)
   })
 }
@@ -123,7 +123,7 @@ function getCache(name, cb) {
 var abb = {}
 var frameStack = {}
 
-window.onmessage = e => {
+window.onmessage = (e) => {
   try {
     var action = JSON.parse(e.data)
     if (action.eventId && abb[action.eventId]) {
@@ -136,7 +136,7 @@ function requestFrameMethod(d, name) {
   return new Promise((resolve, reject) => {
     var evtId = Date.now() + Math.random()
     d.eventId = evtId
-    abb[evtId] = function(err, data) {
+    abb[evtId] = function (err, data) {
       if (err) {
         reject(err)
       } else {
@@ -178,20 +178,20 @@ function modifyRequestHeaders(ulrPrefix, headers, inspectUrls, handler) {
   }
   console.log('modifyRequestHeaders', ulrPrefix)
   chrome.webRequest.onBeforeSendHeaders.addListener(
-    function(details) {
+    function (details) {
       try {
         var macthedUrl = details.url.indexOf(ulrPrefix) > -1
         if (macthedUrl) {
-          details.requestHeaders = details.requestHeaders.map(_ => {
+          details.requestHeaders = details.requestHeaders.map((_) => {
             if (headers[_.name]) {
               _.value = headers[_.name]
             }
             return _
           })
 
-          Object.keys(headers).forEach(name => {
+          Object.keys(headers).forEach((name) => {
             var existsHeaders = details.requestHeaders.filter(
-              _ => _.name == name
+              (_) => _.name == name
             )
             if (existsHeaders.length) {
             } else {
@@ -236,7 +236,7 @@ function getCookie(name, cookieStr) {
  * @param {string} headerKey - 插入Header中的名称.
  */
 function parseTokenAndToHeaders(details, cookieKey, headerKey) {
-  var cookieHeader = details.requestHeaders.filter(h => {
+  var cookieHeader = details.requestHeaders.filter((h) => {
     return h.name.toLowerCase() == 'cookie'
   })
   if (cookieHeader.length) {

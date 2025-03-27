@@ -23,60 +23,60 @@
               </el-checkbox>
             </div>
           </div>
-           <div class="all-pubaccounts" v-if="submitting && taskStatus">
-              <p v-if="!taskStatus.accounts">等待发布..</p>
-              <div
-                class="account-item taskStatus"
-                v-for="account in taskStatus.accounts"
+          <div class="all-pubaccounts" v-if="submitting && taskStatus">
+            <p v-if="!taskStatus.accounts">等待发布..</p>
+            <div
+              class="account-item taskStatus"
+              v-for="account in taskStatus.accounts"
+            >
+              <img
+                :src="account.icon ? account.icon : ''"
+                class="icon"
+                height="20"
+                style="vertical-align: -6px; height: 20px !important"
+              />
+              <span class="name-block">{{ account.title }}</span>
+              <span
+                style="margin-left: 15px"
+                :class="account.status + ' message'"
               >
-                <img
-                  :src="account.icon ? account.icon : ''"
-                  class="icon"
-                  height="20"
-                  style="vertical-align: -6px; height: 20px !important"
-                />
-                <span class="name-block">{{ account.title }}</span>
-                <span
-                  style="margin-left: 15px"
-                  :class="account.status + ' message'"
-                >
-                  <template v-if="account.status == 'uploading'">
-                    <div class="lds-dual-ring"></div>
-                    {{ account.msg || '发布中' }}
-                  </template>
+                <template v-if="account.status == 'uploading'">
+                  <div class="lds-dual-ring"></div>
+                  {{ account.msg || '发布中' }}
+                </template>
 
-                  <template v-if="account.status == 'failed'">
-                    同步失败, 错误内容：{{ account.error }}
-                  </template>
+                <template v-if="account.status == 'failed'">
+                  同步失败, 错误内容：{{ account.error }}
+                </template>
 
-                  <template v-if="account.status == 'done' && account.editResp">
-                    同步成功
-                    <a
-                      :href="account.editResp.draftLink"
-                      v-if="account.type != 'wordpress' && account.editResp"
-                      style="margin-left: 5px"
-                      target="_blank"
-                      >查看草稿</a
-                    >
-                  </template>
-                </span>
-              </div>
+                <template v-if="account.status == 'done' && account.editResp">
+                  同步成功
+                  <a
+                    :href="account.editResp.draftLink"
+                    v-if="account.type != 'wordpress' && account.editResp"
+                    style="margin-left: 5px"
+                    target="_blank"
+                    >查看草稿</a
+                  >
+                </template>
+              </span>
             </div>
+          </div>
           <hr />
           <el-button
-              size="small"
-              v-if="!submitting"
-              type="primary"
-              @click="doSubmit"
-              >同步</el-button
-            >
+            size="small"
+            v-if="!submitting"
+            type="primary"
+            @click="doSubmit"
+            >同步</el-button
+          >
           <el-button
-              size="small"
-              v-if="submitting"
-              type="primary"
-              @click="submitting = false"
-              >关闭</el-button
-            >
+            size="small"
+            v-if="submitting"
+            type="primary"
+            @click="submitting = false"
+            >关闭</el-button
+          >
         </div>
         <el-button slot="reference" size="small" type="primary">发布</el-button>
       </el-popover>
@@ -152,7 +152,7 @@ var tracker = service.getTracker('UA-48134052-13')
 
 var axios = require('axios')
 
-const Juejin = require("@wechatsync/drivers").Juejin;
+const Juejin = require('../../../@wechatsync/drivers').Juejin
 
 export default {
   name: '',
@@ -248,7 +248,11 @@ export default {
 
     const self = this
 
-    chrome.runtime.onMessage.addListener(function (request, sender, sendResponseA) {
+    chrome.runtime.onMessage.addListener(function (
+      request,
+      sender,
+      sendResponseA
+    ) {
       console.log('content.js revice', request)
       try {
         console.log('revice', request)
