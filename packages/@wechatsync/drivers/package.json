@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "webpack-merge": "^6.0.1",
-    "events": "^3.3.0"
+    "events": "^3.3.0",
+    "babel-loader": "workspace:*"
   }
 }

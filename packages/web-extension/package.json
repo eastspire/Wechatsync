@@ -32,8 +32,9 @@
     "vuex": "^3.0.1"
   },
   "devDependencies": {
-    "webpack-merge": "^6.0.1",
-    "events": "^3.3.0",
-    "html-webpack-plugin": "workspace:*"
+    "webpack-merge": "workspace:*",
+    "events": "workspace:*",
+    "html-webpack-plugin": "workspace:*",
+    "babel-loader": "workspace:*"
   }
 }

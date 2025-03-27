@@ -20,7 +20,8 @@
   "devDependencies": {
     "webpack-merge": "^6.0.1",
     "events": "^3.3.0",
-    "html-webpack-plugin": "workspace:*"
+    "html-webpack-plugin": "workspace:*",
+    "babel-loader": "workspace:*"
   },
   "license": "ISC"
 }
