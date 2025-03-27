@@ -43,25 +43,6 @@
           >
             <i class="fe fe-x"></i>
           </button>
-          <!-- Navigation -->
-          <ul class="navbar-nav ml-auto" style="margin-right: 70px">
-            <li class="nav-item">
-              <a
-                class="nav-link"
-                target="_blank"
-                href="https://github.com/wechatsync/Wechatsync"
-                >Github</a
-              >
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link"
-                target="_blank"
-                href="https://www.wechatsync.com/#install"
-                >插件下载</a
-              >
-            </li>
-          </ul>
           <!-- Button -->
           <a
             href="https://github.com/lljxx1/Music-Analytics"
@@ -87,8 +68,8 @@
       <div v-if="checkCount > 3">
         未检测到插件<br />
         请安装同步助手Chrome插件
-        <a href="https://www.wechatsync.com/#install" target="_blank"
-          >https://www.wechatsync.com/#install</a
+        <a href="https://github.com/ltpp-universe/Wechatsync" target="_blank"
+          >https://github.com/ltpp-universe/Wechatsync</a
         >
       </div>
     </div>

@@ -60,18 +60,7 @@ export default {
     this.$isRookie = !get('lastTimeStamp')
     return {
       theme: window.__theme,
-      links: [
-        {
-          name: 'github',
-          title: 'GitHub',
-          url: 'https://github.com/wechatsync/Wechatsync',
-        },
-        {
-          name: 'download',
-          title: '插件下载',
-          url: 'https://www.wechatsync.com/#install',
-        },
-      ],
+      links: [],
       isModalVisible: this.$isRookie,
     }
   },

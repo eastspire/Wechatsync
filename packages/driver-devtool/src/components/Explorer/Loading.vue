@@ -4,8 +4,8 @@
       <h1>未检测到插件</h1>
       <h3>请安装同步助手Chrome插件</h3>
       <p>
-        <a href="https://www.wechatsync.com/#install" target="_blank"
-          >https://www.wechatsync.com/#install</a
+        <a href="https://github.com/ltpp-universe/Wechatsync" target="_blank"
+          >https://github.com/ltpp-universe/Wechatsync</a
         >
       </p>
     </div>
