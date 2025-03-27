@@ -3,10 +3,6 @@
   "name": "wechat-sync",
   "version": "0.0.7",
   "description": "",
-  "workspaces": [
-    "packages/*",
-    "packages/@wechatsync/*"
-  ],
   "packageManager": "pnpm@9.14.2",
   "author": "fun",
   "license": "ISC",
