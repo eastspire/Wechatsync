@@ -7,6 +7,7 @@
     "packages/*",
     "packages/@wechatsync/*"
   ],
+  "packageManager": "pnpm@9.14.2",
   "author": "fun",
   "license": "ISC",
   "scripts": {
