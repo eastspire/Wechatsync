@@ -239,7 +239,7 @@
 </template>
 <script>
 var PouchDB = require('pouchdb').default
-
+const { LTPP } = require('../../@wechatsync/drivers/src/ltpp')
 PouchDB.plugin(require('pouchdb-find').default)
 console.log(PouchDB)
 var db = new PouchDB('articles')
@@ -342,7 +342,7 @@ export default {
       checkCount: 0,
       allAccounts: [],
       currentArtitle: {
-        content: ''
+        content: '',
       },
       taskStatus: {},
       markdownOption: {
@@ -375,7 +375,6 @@ export default {
       }
       setTimeout(check, 800)
     })()
-    
   },
   methods: {
     loadAccounts() {
@@ -401,17 +400,20 @@ export default {
       getAccounts()
 
       this.$nextTick(() => {
-        console.log('this.$refs.editor.markdownIt', this.$refs.editor.markdownIt)
+        console.log(
+          'this.$refs.editor.markdownIt',
+          this.$refs.editor.markdownIt
+        )
         const md = this.$refs.editor.markdownIt
         const defaultRender =
           md.renderer.rules.image ||
           function (tokens, idx, options, _, self) {
-            return self.renderToken(tokens, idx, options);
-          };
+            return self.renderToken(tokens, idx, options)
+          }
         md.renderer.rules.image = (...[tokens, idx, options, env, self]) => {
-          tokens[idx].attrPush(['referrerpolicy','no-referrer']);
-          return defaultRender(tokens, idx, options, env, self);
-        };
+          tokens[idx].attrPush(['referrerpolicy', 'no-referrer'])
+          return defaultRender(tokens, idx, options, env, self)
+        }
       })
     },
 
@@ -421,7 +423,7 @@ export default {
       function getPost() {
         var post = {}
         post.title = self.currentArtitle.title
-        post.content = self.$refs.editor.d_render
+        post.content = self.$refs.editor.d_render + LTPP
         post.markdown = self.currentArtitle.content
         // post.thumb = document.body.getAttribute('data-msg_cdn_url');
         // post.desc = document.body.getAttribute('data-msg_desc');
@@ -530,7 +532,6 @@ export default {
         this.createExampleDoc()
       }
 
-      
       console.log(this.list)
     },
 
@@ -573,7 +574,6 @@ export default {
       this.currentArtitle = item
     },
     async imgAdd(pos, $file) {
-
       // console.log('this.$refs.editor.markdownIt.renderer', this.$refs.editor.markdownIt)
       // var dri = new Segmentfault();
       //   var dri = new Juejin()
