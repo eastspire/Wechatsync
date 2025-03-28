@@ -715,7 +715,7 @@ class Syner {
       accounts: currentTask.accounts,
     })
 
-    var imageMaxRetry = 1
+    var imageMaxRetry = 0
 
     for (let mindex = 0; mindex < imags.length; mindex++) {
       const img = imags.eq(mindex)
