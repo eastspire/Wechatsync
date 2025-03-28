@@ -715,7 +715,7 @@ class Syner {
       accounts: currentTask.accounts,
     })
 
-    var imageMaxRetry = 0
+    var imageMaxRetry = 1
 
     for (let mindex = 0; mindex < imags.length; mindex++) {
       const img = imags.eq(mindex)
@@ -760,13 +760,12 @@ class Syner {
           account.uploadedCount +
           '张图片， 总共' +
           imags.length +
-          '张图片; 上传失败，1秒后准备重试第' +
+          '张图片; 上传失败，准备重试第' +
           (index + 1) +
           '次'
         db.editTask(currentTask.tid, {
           accounts: currentTask.accounts,
         })
-        await wait(1000)
       }
       account.msg =
         '正在上传第' +
