@@ -503,7 +503,7 @@ export default {
 
       console.log(res)
       this.list = res.docs.map((d) => {
-        d.title = d.title || '标题'
+        d.title = d.title
         return d
       })
 
