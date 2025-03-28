@@ -1,4 +1,4 @@
-require("./drivers/driverCodePack");
+require('./drivers/driverCodePack')
 import Store from './db/store'
 import { upImage } from './util/image'
 
@@ -17,13 +17,12 @@ window.currentDriver = localDriver
 // index by tabId
 var logWatchers = {}
 
-
 var rawLogFun = console.log
 var _isInjected = false
 
 function startInspectInject() {
   if (_isInjected) return
-  console.log = function() {
+  console.log = function () {
     rawLogFun.apply(null, arguments)
     try {
       var args = [].slice.apply(arguments)
@@ -43,7 +42,7 @@ async function isDisableAddPromotion() {
 function brodcastToWatcher(args) {
   var tabIds = Object.keys(logWatchers)
   for (let index = 0; index < tabIds.length; index++) {
-    const logWatcher = logWatchers[tabIds[index]];
+    const logWatcher = logWatchers[tabIds[index]]
     // console.log('brodcastToWatcher', logWatcher, args)
     chrome.tabs.sendMessage(
       logWatcher.tab.id,
@@ -63,10 +62,10 @@ async function setDriver(driver) {
   window.currentDriver = driver
   window.driverMeta = driver.getMeta()
   getDriver = window.currentDriver.getDriver
-  getPublicAccounts = async function() {
+  getPublicAccounts = async function () {
     var users = await window.currentDriver.getPublicAccounts()
     try {
-      users.forEach(publicAccount => {
+      users.forEach((publicAccount) => {
         console.log('tracker', publicAccount)
         tracker.sendEvent(
           'user',
@@ -113,11 +112,7 @@ async function loadDriver() {
   afterDriver()
 }
 
-
-
 var publicAccounts = []
-
-
 
 var db = new Store()
 window.db = db
@@ -135,7 +130,7 @@ function getCookie(name, cookieStr) {
 }
 
 function wait(ms) {
-  return new Promise(resolve => setTimeout(() => resolve(), ms))
+  return new Promise((resolve) => setTimeout(() => resolve(), ms))
 }
 
 class Syner {
@@ -160,110 +155,114 @@ class Syner {
       insepectURLs = insepectURLs.concat(window.driverMeta.inspectUrls)
     }
 
-      chrome.webRequest.onBeforeSendHeaders.addListener(
-        function(details) {
-          console.log('details.requestHeaders', details, details.url)
-          // WEIBO API
-          try {
-            var modifRules = [
-              {
-                prefix: 'mp.weixin.qq.com/cgi-bin',
-                origin: 'https://mp.weixin.qq.com',
-                referer: 'https://mp.weixin.qq.com/cgi-bin/appmsg',
-              },
-              {
-                prefix: 'mp.toutiao.com/mp',
-                origin: 'https://mp.toutiao.com',
-                referer: 'https://mp.toutiao.com/profile_v4/graphic/publish',
-              },
-            ]
+    chrome.webRequest.onBeforeSendHeaders.addListener(
+      function (details) {
+        console.log('details.requestHeaders', details, details.url)
+        // WEIBO API
+        try {
+          var modifRules = [
+            {
+              prefix: 'mp.weixin.qq.com/cgi-bin',
+              origin: 'https://mp.weixin.qq.com',
+              referer: 'https://mp.weixin.qq.com/cgi-bin/appmsg',
+            },
+            {
+              prefix: 'mp.toutiao.com/mp',
+              origin: 'https://mp.toutiao.com',
+              referer: 'https://mp.toutiao.com/profile_v4/graphic/publish',
+            },
+          ]
 
-            for (let index = 0; index < modifRules.length; index++) {
-              const modifRule = modifRules[index]
-              if (details.url.indexOf(modifRule.prefix) > -1) {
-                var foundRefereHeader = false
-                for (var i = 0; i < details.requestHeaders.length; ++i) {
-                  if (details.requestHeaders[i].name === 'Referer')
-                    foundRefereHeader = true
-                  if (details.requestHeaders[i].name === 'Origin') {
-                    details.requestHeaders[i].value = modifRule.origin
-                  }
-                }
-                if (!foundRefereHeader) {
-                  details.requestHeaders.push({
-                    name: 'Referer',
-                    value: modifRule.referer,
-                  })
-                }
-                console.log('details.requestHeaders', modifRule, details)
-              } else {
-                // console.log('rule not macth', modifRule.prefix, details.url)
-              }
-            }
-
-            if (details.url.indexOf('https://card.weibo.com/article/v3') > -1) {
+          for (let index = 0; index < modifRules.length; index++) {
+            const modifRule = modifRules[index]
+            if (details.url.indexOf(modifRule.prefix) > -1) {
               var foundRefereHeader = false
               for (var i = 0; i < details.requestHeaders.length; ++i) {
                 if (details.requestHeaders[i].name === 'Referer')
                   foundRefereHeader = true
                 if (details.requestHeaders[i].name === 'Origin') {
-                  details.requestHeaders[i].value = 'https://card.weibo.com'
+                  details.requestHeaders[i].value = modifRule.origin
                 }
               }
               if (!foundRefereHeader) {
                 details.requestHeaders.push({
                   name: 'Referer',
-                  value: 'https://card.weibo.com/article/v3/editor',
+                  value: modifRule.referer,
                 })
               }
-              console.log('details.requestHeaders', details)
+              console.log('details.requestHeaders', modifRule, details)
+            } else {
+              // console.log('rule not macth', modifRule.prefix, details.url)
             }
+          }
 
-            //  zhihu xsrf token
-            if (details.url.indexOf('zhuanlan.zhihu.com/api') > -1) {
-              var cookieHeader = details.requestHeaders.filter(h => {
-                return h.name.toLowerCase() == 'cookie'
-              })
-
-              if (cookieHeader.length) {
-                var cookieStr = cookieHeader[0].value
-                var _xsrf = getCookie('_xsrf', cookieStr)
-                if (_xsrf) {
-                  details.requestHeaders.push({
-                    name: 'x-xsrftoken',
-                    value: _xsrf,
-                  })
-                }
-                console.log('cookieStr', cookieStr)
+          if (details.url.indexOf('https://card.weibo.com/article/v3') > -1) {
+            var foundRefereHeader = false
+            for (var i = 0; i < details.requestHeaders.length; ++i) {
+              if (details.requestHeaders[i].name === 'Referer')
+                foundRefereHeader = true
+              if (details.requestHeaders[i].name === 'Origin') {
+                details.requestHeaders[i].value = 'https://card.weibo.com'
               }
-              console.log('details.requestHeaders', details)
             }
-          } catch (e) {
-            console.log('modify headers error', e)
+            if (!foundRefereHeader) {
+              details.requestHeaders.push({
+                name: 'Referer',
+                value: 'https://card.weibo.com/article/v3/editor',
+              })
+            }
+            console.log('details.requestHeaders', details)
           }
 
-          // Bilibili origin set
-          if (details.url.indexOf('https://api.bilibili.com/x/article/creative/draft/addupdate') > -1){
-            details.requestHeaders.push({
-              name: 'origin',
-              value: 'https://member.bilibili.com',
+          //  zhihu xsrf token
+          if (details.url.indexOf('zhuanlan.zhihu.com/api') > -1) {
+            var cookieHeader = details.requestHeaders.filter((h) => {
+              return h.name.toLowerCase() == 'cookie'
             })
-            console.log('bilibili header origin add success: ', details)
-          }
 
-          try {
-            window.driverMeta.urlHandler(details)
-          } catch (e) {
-            console.log('urlHandler', e)
+            if (cookieHeader.length) {
+              var cookieStr = cookieHeader[0].value
+              var _xsrf = getCookie('_xsrf', cookieStr)
+              if (_xsrf) {
+                details.requestHeaders.push({
+                  name: 'x-xsrftoken',
+                  value: _xsrf,
+                })
+              }
+              console.log('cookieStr', cookieStr)
+            }
+            console.log('details.requestHeaders', details)
           }
+        } catch (e) {
+          console.log('modify headers error', e)
+        }
 
-          return { requestHeaders: details.requestHeaders }
-        },
-        {
-          urls: insepectURLs,
-        },
-        ['blocking', 'requestHeaders', 'extraHeaders',]
-      )
+        // Bilibili origin set
+        if (
+          details.url.indexOf(
+            'https://api.bilibili.com/x/article/creative/draft/addupdate'
+          ) > -1
+        ) {
+          details.requestHeaders.push({
+            name: 'origin',
+            value: 'https://member.bilibili.com',
+          })
+          console.log('bilibili header origin add success: ', details)
+        }
+
+        try {
+          window.driverMeta.urlHandler(details)
+        } catch (e) {
+          console.log('urlHandler', e)
+        }
+
+        return { requestHeaders: details.requestHeaders }
+      },
+      {
+        urls: insepectURLs,
+      },
+      ['blocking', 'requestHeaders', 'extraHeaders']
+    )
   }
 
   getSender(guid) {
@@ -276,7 +275,7 @@ class Syner {
 
   listenRequest() {
     var self = this
-    chrome.runtime.onMessage.addListener(function(
+    chrome.runtime.onMessage.addListener(function (
       request,
       sender,
       sendResponseA
@@ -305,7 +304,7 @@ class Syner {
             'title',
             [
               request.task.post.title,
-              newTask.accounts.map(account => {
+              newTask.accounts.map((account) => {
                 return [account.type, account.uid, account.title].join('-')
               }),
             ].join(';;')
@@ -334,14 +333,15 @@ class Syner {
       if (request.action && request.action == 'getCache') {
         console.log(request)
         ;(async () => {
-          chrome.storage.local.get(request.names ? request.names : [request.name], function(
-            result
-          ) {
-            sendResponseA({
-              result: result,
-            })
-          })
-        })();
+          chrome.storage.local.get(
+            request.names ? request.names : [request.name],
+            function (result) {
+              sendResponseA({
+                result: result,
+              })
+            }
+          )
+        })()
         return true
       }
 
@@ -350,10 +350,10 @@ class Syner {
         ;(async () => {
           var d = {}
           d[request.name] = request.value
-          chrome.storage.local.set(d, function() {
+          chrome.storage.local.set(d, function () {
             console.log('cache set')
           })
-        })();
+        })()
         return true
       }
 
@@ -381,30 +381,33 @@ class Syner {
       }
 
       if (request.action && request.action == 'updateDriver') {
-        console.log('updateDriver', request);
-        (async () => {
+        console.log('updateDriver', request)
+        ;(async () => {
           try {
-            var isDevelopment = request.data.dev;
-            var isPatch = request.data.patch;
-            var patchName = request.data.name;
+            var isDevelopment = request.data.dev
+            var isPatch = request.data.patch
+            var patchName = request.data.name
             // var patchName = request.name;
             if (isPatch && isDevelopment) {
               console.log('try patch driver')
               try {
                 var patchCodeVm = getDriverProvider(request.data.code)
-                if(patchCodeVm.driver) {
-                  window.currentDriver.addCustomDriver(patchName, patchCodeVm.driver)
+                if (patchCodeVm.driver) {
+                  window.currentDriver.addCustomDriver(
+                    patchName,
+                    patchCodeVm.driver
+                  )
                   console.log('custom driver seted')
                   sendResponseA({
                     result: {
-                      status: 1
+                      status: 1,
                     },
                   })
                 } else {
                   sendResponseA({
                     result: {
                       error: 'exports.driver not found',
-                      status: 0
+                      status: 0,
                     },
                   })
                 }
@@ -422,12 +425,11 @@ class Syner {
                   result: {
                     error: 'initvm failed',
                     detail: e.toString(),
-                    status: 0
+                    status: 0,
                   },
                 })
                 console.log('initvm failed', e)
               }
-
             }
 
             if (!isPatch) {
@@ -443,7 +445,7 @@ class Syner {
                   {
                     driver: request.data.code,
                   },
-                  function() {
+                  function () {
                     console.log('driver seted')
                     loadDriver()
                   }
@@ -451,27 +453,26 @@ class Syner {
                 console.log('is new driver')
                 sendResponseA({
                   result: {
-                    status: 1
+                    status: 1,
                   },
                 })
-              // } else {
-              //   sendResponseA({
-              //     result: {
-              //     status: 0
-              //   },
-              //   })
-              // }
+                // } else {
+                //   sendResponseA({
+                //     result: {
+                //     status: 0
+                //   },
+                //   })
+                // }
               }
             }
           } catch (e) {
             sendResponseA({
               result: {
                 status: 0,
-                error: e.toString()
+                error: e.toString(),
               },
             })
           }
-
         })()
         return true
       }
@@ -480,11 +481,11 @@ class Syner {
         console.log(request)
         ;(async () => {
           try {
-            var driver = getDriver(request.data.account )
+            var driver = getDriver(request.data.account)
             var methodName = request.methodName
             if (methodName === 'uploadImage') {
               var postId = Math.floor(Math.random() * 100000)
-              var imgSRC = request.data.src;
+              var imgSRC = request.data.src
               var result = await upImage(
                 driver,
                 imgSRC,
@@ -496,7 +497,7 @@ class Syner {
               })
             } else {
               var driverFunc = driver[methodName]
-              if(!driverFunc) {
+              if (!driverFunc) {
                 sendResponseA({
                   error: 'method not exists',
                 })
@@ -526,7 +527,7 @@ class Syner {
       tasks.forEach((t, tid) => {
         t.tid = tid
       })
-      var notDone = tasks.filter(t => {
+      var notDone = tasks.filter((t) => {
         return t.status == 'wait'
       })
 
@@ -536,11 +537,11 @@ class Syner {
         })
       } catch (e) {}
 
-      var timeOut = tasks.filter(t => {
+      var timeOut = tasks.filter((t) => {
         return t.status == 'uploading'
       })
 
-      timeOut.forEach(t => {
+      timeOut.forEach((t) => {
         // db.editTask(t.tid, {
         //   status: "failed",
         //   msg: "超时"
@@ -573,11 +574,11 @@ class Syner {
                   message: currentTask.post.title + ' >> ' + account.title,
                   iconUrl: 'images/logo.png',
                 },
-                function() {
-                  window.setTimeout(function() {
+                function () {
+                  window.setTimeout(function () {
                     chrome.notifications.clear(
                       'sync_sucess_' + currentTask.tid,
-                      function() {}
+                      function () {}
                     )
                   }, 4000)
                 }
@@ -603,11 +604,11 @@ class Syner {
                   message: msgErro,
                   iconUrl: 'images/logo.png',
                 },
-                function() {
-                  window.setTimeout(function() {
+                function () {
+                  window.setTimeout(function () {
                     chrome.notifications.clear(
                       'sync_error_' + currentTask.tid,
-                      function() {}
+                      function () {}
                     )
                   }, 4000)
                 }
@@ -687,7 +688,9 @@ class Syner {
         {
           post_title: postContent.title,
           post_author: account.params ? account.params.wpUser : '',
-          post_content:  postContent[`content_${account.type}`] ?  postContent[`content_${account.type}`] : postContent.content,
+          post_content: postContent[`content_${account.type}`]
+            ? postContent[`content_${account.type}`]
+            : postContent.content,
         },
         postContent
       ),
@@ -712,7 +715,7 @@ class Syner {
       accounts: currentTask.accounts,
     })
 
-    var imageMaxRetry = 10
+    var imageMaxRetry = 1
 
     for (let mindex = 0; mindex < imags.length; mindex++) {
       const img = imags.eq(mindex)
@@ -778,9 +781,7 @@ class Syner {
     }
 
     console.log('upload images done')
-    postContent.content = $('<div>')
-      .append(doc.clone())
-      .html()
+    postContent.content = $('<div>').append(doc.clone()).html()
 
     // 设置缩略图
     var post_thumbnail = null
@@ -819,7 +820,7 @@ class Syner {
     try {
       editResp = await driver.editPost(
         finalPostId,
-        Object.assign(postContent, editInput),
+        Object.assign(postContent, editInput)
       )
     } catch (e) {
       console.log('editPost failed：', e)
@@ -858,12 +859,12 @@ function afterDriver() {
     console.log('load driver')
     loadDriver()
   } else {
-    initDevRuntimeEnvironment();
+    initDevRuntimeEnvironment()
     window.driverMeta = localDriver.getMeta()
     afterDriver()
     console.log('dvelopment driver')
   }
-})();
+})()
 var sharedContextmenuId = null
 function createSharedContextmenu() {
   if (!sharedContextmenuId) {
@@ -871,7 +872,7 @@ function createSharedContextmenu() {
       id: 'getAttrile',
       title: '提取文章并同步',
       contexts: ['all'],
-      onclick: function(info, tab) {
+      onclick: function (info, tab) {
         // var text = info.selectionText;
         // text = text || tab.title;
         var link = info.linkUrl || info.frameUrl || info.pageUrl
@@ -902,7 +903,6 @@ function removeSharedContextmenu() {
 }
 
 createSharedContextmenu()
-
 
 // chrome.tabs.executeScript(
 //   tab.id,
