@@ -8,6 +8,7 @@
   "license": "ISC",
   "scripts": {
     "prepare": "husky install",
+    "dev": "pnpm --filter markdown-editor start",
     "build": "pnpm --filter @wechatsync/drivers build && pnpm --filter web-extension build && pnpm --filter markdown-editor build"
   },
   "config": {

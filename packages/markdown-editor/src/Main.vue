@@ -1,59 +1,5 @@
 <template>
   <div class="editor-wrapper">
-    <div class="header-bar">
-      <nav class="navbar navbar-expand-lg navbar-light" style="padding: 0 10px">
-        <!-- Brand -->
-        <a
-          class="navbar-brand"
-          href="#"
-          style="color: #222; font-size: 20px; width: 350px; margin-right: 20px"
-        >
-          <img
-            src="https://www.wechatsync.com/images/logo-light.svg"
-            height="38"
-            style="vertical-align: -12px"
-          />
-          同步助手Markdown
-        </a>
-
-        <!-- Toggler -->
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-toggle="collapse"
-          data-target="#navbarCollapse"
-          aria-controls="navbarCollapse"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <!-- Collapse -->
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-          <!-- Toggler -->
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-toggle="collapse"
-            data-target="#navbarCollapse"
-            aria-controls="navbarCollapse"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <i class="fe fe-x"></i>
-          </button>
-          <!-- Button -->
-          <a
-            href="https://github.com/lljxx1/Music-Analytics"
-            target="_blank"
-            class="btn d-lg-inline-flex"
-            style="margin-right: 10px"
-            ><i class="fa fa-github" style="color: #222; font-size: 24px"></i
-          ></a>
-        </div>
-      </nav>
-    </div>
     <div
       class=""
       v-if="!extensionInstalled"
@@ -68,8 +14,8 @@
       <div v-if="checkCount > 3">
         未检测到插件<br />
         请安装同步助手Chrome插件
-        <a href="https://github.com/ltpp-universe/Wechatsync" target="_blank"
-          >https://github.com/ltpp-universe/Wechatsync</a
+        <a href="https://github.com/eastspire/Wechatsync" target="_blank"
+          >https://github.com/eastspire/Wechatsync</a
         >
       </div>
     </div>
@@ -157,64 +103,59 @@
           >
         </el-popover>
       </div>
-
+      <button
+        class="top-tools-btn btn-sm btn-success"
+        type="button"
+        @click="create()"
+      >
+        新文章
+      </button>
       <div class="article-list">
-        <div class="top-tools">
-          <button
-            class="btn btn-sm btn-success"
-            type="button"
-            @click="create()"
-          >
-            新文章
-          </button>
-        </div>
-        <div class="article-all">
-          <div
-            v-for="(item, index) in list"
-            class="article-item"
-            @click="open(item)"
-            :class="{ selected: item._id == currentArtitle._id }"
-          >
-            <div class="hover-overlay"></div>
-            <div class="selected-overlay"></div>
-            <div class="main-content">
-              <div class="title">{{ item.title }}</div>
-              <div class="date">{{ item.updateTime | date }}</div>
-              <div class="desc">
-                {{ item.content.substr(0, 100) }}
-              </div>
-            </div>
-            <div class="item-divider" v-if="index > 0"></div>
-            <div class="hover-container">
-              <div class="icon fa fa-mavon-trash-o" @click="trash(item)"></div>
+        <div
+          v-for="(item, index) in list"
+          class="article-item"
+          @click="open(item)"
+          :class="{ selected: item._id == currentArtitle._id }"
+        >
+          <div class="hover-overlay"></div>
+          <div class="selected-overlay"></div>
+          <div class="main-content">
+            <div class="title">{{ item.title }}</div>
+            <div class="date">{{ item.updateTime | date }}</div>
+            <div class="desc">
+              {{ item.content.substr(0, 100) }}
             </div>
           </div>
+          <div class="item-divider" v-if="index > 0"></div>
+          <div class="hover-container">
+            <div class="icon fa fa-mavon-trash-o" @click="trash(item)"></div>
+          </div>
+        </div>
 
-          <div v-if="!list.length" class="not-article">没有文章</div>
-        </div>
+        <div v-if="!list.length" class="not-article">没有文章</div>
       </div>
-      <div class="editor-main">
-        <div class="post-title">
-          <input
-            type="text"
-            v-model="currentArtitle.title"
-            placeholder="标题"
-            class="form-control"
-          />
-        </div>
-        <mavon-editor
-          ref="editor"
-          @imgAdd="imgAdd"
-          :boxShadow="false"
-          v-model="currentArtitle.content"
-        >
-          <template slot="right-toolbar-before">
-            <!-- <button>
+    </div>
+    <div class="editor-main">
+      <div class="post-title">
+        <input
+          type="text"
+          v-model="currentArtitle.title"
+          placeholder="标题"
+          class="form-control"
+        />
+      </div>
+      <mavon-editor
+        ref="editor"
+        @imgAdd="imgAdd"
+        :boxShadow="false"
+        v-model="currentArtitle.content"
+      >
+        <template slot="right-toolbar-before">
+          <!-- <button>
               view wechat   
             </button>  -->
-          </template>
-        </mavon-editor>
-      </div>
+        </template>
+      </mavon-editor>
     </div>
   </div>
 </template>
@@ -598,8 +539,9 @@ export default {
 </script>
 <style>
 .article-list {
-  height: 100%;
+  height: 100vh;
   width: 350px;
+  overflow-y: auto;
 }
 
 .v-note-wrapper {
@@ -613,7 +555,6 @@ export default {
   overflow-y: auto;
   box-sizing: border-box;
   position: relative;
-  margin-top: 110px;
 }
 
 #app,
@@ -770,16 +711,13 @@ body,
   opacity: 1;
 }
 
-.top-tools {
-  padding: 10px 24px;
+.top-tools-btn {
+  position: fixed;
+  top: 14px;
+  z-index: 10000000;
+  left: 366px;
   font-size: 13px;
-  text-align: right;
-  border-bottom: 1px solid #d9d9d9;
-  width: 350px;
-}
-
-.top-tools .btn {
-  font-size: 13px;
+  border: transparent solid 0px;
 }
 
 .v-note-wrapper .v-note-op {
@@ -796,7 +734,6 @@ body,
   box-sizing: border;
 }
 
-.top-tools,
 .post-title {
   position: absolute;
   z-index: 1502;
