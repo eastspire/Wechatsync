@@ -166,6 +166,7 @@ PouchDB.plugin(require('pouchdb-find').default)
 console.log(PouchDB)
 var db = new PouchDB('articles')
 var trash = new PouchDB('trash-articles')
+var visUrlMap = {}
 // db.put({
 //   _id: 'dave@gmail.com',
 //   name: 'David',
@@ -367,6 +368,13 @@ export default {
         },
         function (status) {
           self.taskStatus = status
+          status?.accounts?.forEach((tem) => {
+            const link = tem?.editResp?.draftLink
+            if (link && !visUrlMap[link]) {
+              visUrlMap[link] = true
+              window.open(tem.editResp.draftLink, '_blank')
+            }
+          })
           console.log('status', status)
         },
         function () {
